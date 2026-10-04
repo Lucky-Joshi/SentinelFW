@@ -21,11 +21,11 @@ from __future__ import annotations
 import hashlib
 import time
 from dataclasses import dataclass, field
-from typing import Any, Iterable, Sequence
+from typing import Any, Sequence
 
 from config import AppConfig
 from logsetup import get_logger
-from monitor.database import Alert, Database, FirewallEvent, Severity, severity_rank
+from monitor.database import Alert, Database, Severity, severity_rank
 from monitor.explain import attack_info, recommendations_for
 from utils import epoch_of, iso_from_epoch, now_iso, now_utc
 

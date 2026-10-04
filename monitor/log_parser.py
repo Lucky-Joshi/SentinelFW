@@ -39,11 +39,11 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Callable, Iterable, Iterator, Sequence
+from typing import Any, Iterable, Iterator, Sequence
 
-from exceptions import LogSourceError, RootRequiredError
+from exceptions import LogSourceError
 from logsetup import get_logger
-from monitor.database import FirewallEvent, Severity
+from monitor.database import FirewallEvent
 from monitor.explain import classify_event
 from utils import epoch_of, now_utc, parse_iso
 
@@ -355,12 +355,17 @@ class LogSource(ABC):
 
     name = "source"
 
-    def __init__(self) -> None:
+    def __init__(self, *, follow: bool = True) -> None:
         self._stop = threading.Event()
+        #: When False the source must end the stream at the end of what is
+        #: currently available instead of waiting for more. ``monitor poll``
+        #: depends on this: without it a source that blocks internally would
+        #: hang the "one pass, then exit" command forever.
+        self.follow = follow
 
     @abstractmethod
     def stream(self) -> Iterator[str]:
-        """Yield raw lines until :meth:`close` is called."""
+        """Yield raw lines until the input is exhausted or :meth:`close` is called."""
 
     @abstractmethod
     def describe(self) -> str:
@@ -387,22 +392,26 @@ class JournalLogSource(LogSource):
     name = "journal"
 
     def __init__(self, *, identifier: str = "kernel", since_minutes: int = 5,
-                 binary: str = "journalctl") -> None:
-        super().__init__()
+                 binary: str = "journalctl", follow: bool = True) -> None:
+        super().__init__(follow=follow)
         self.identifier = identifier
         self.since_minutes = since_minutes
         self.binary = binary
         self._process: subprocess.Popen[str] | None = None
 
     def _argv(self) -> list[str]:
-        return [
+        argv = [
             self.binary,
-            "--follow",
+        ]
+        if self.follow:
+            argv.append("--follow")
+        argv += [
             "--no-pager",
             "--output", "short-iso",
             f"--identifier={self.identifier}",
             f"--since={self.since_minutes} minutes ago",
         ]
+        return argv
 
     def stream(self) -> Iterator[str]:
         import shutil
@@ -465,10 +474,9 @@ class FileLogSource(LogSource):
 
     def __init__(self, path: str | Path, *, poll_interval: float = 1.0,
                  follow: bool = True, from_start: bool = False) -> None:
-        super().__init__()
+        super().__init__(follow=follow)
         self.path = Path(path).expanduser()
         self.poll_interval = max(0.1, float(poll_interval))
-        self.follow = follow
         self.from_start = from_start
 
     def stream(self) -> Iterator[str]:
@@ -686,7 +694,8 @@ class DemoLogSource(LogSource):
 
 
 def build_source(kind: str, config: Any, *, log_prefix: str | None = None,
-                 command: Sequence[str] | None = None) -> LogSource:
+                 command: Sequence[str] | None = None,
+                 follow: bool = True) -> LogSource:
     """Factory mapping ``monitoring.source`` to a concrete log source."""
     monitoring = config.monitoring
     prefix = log_prefix or config.log_prefix
@@ -697,6 +706,7 @@ def build_source(kind: str, config: Any, *, log_prefix: str | None = None,
         return JournalLogSource(
             identifier=monitoring.journal_identifier,
             since_minutes=monitoring.read_since_minutes,
+            follow=follow,
         )
     if kind == "file":
         candidates = [Path(p) for p in monitoring.log_files]

@@ -24,7 +24,6 @@ from config import AppConfig
 from exceptions import ReportError
 from logsetup import get_logger
 from monitor.database import Database, SEVERITY_ORDER
-from monitor.detector import DetectionEngine
 from monitor.explain import attack_info, port_info, recommendations_for
 from utils import (
     human_duration,

@@ -15,7 +15,6 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from monitor.database import FirewallEvent, Severity, severity_rank
-from utils import truncate
 
 __all__ = [
     "PortInfo",

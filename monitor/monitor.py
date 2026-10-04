@@ -27,13 +27,10 @@ from logsetup import get_logger
 from monitor.database import Database, FirewallEvent
 from monitor.detector import DetectionEngine, DetectionResult
 from monitor.log_parser import (
-    CommandLogSource,
     DemoLogSource,
     FileLogSource,
-    JournalLogSource,
     LogSource,
     NFLogParser,
-    StdinLogSource,
     build_source,
 )
 from utils import now_iso
@@ -163,6 +160,10 @@ class LogCollector:
 
         Used by ``monitor poll``: one pass, no following.
         """
+        # The source must stop at the end of what is buffered. Relying on the
+        # loop's own deadline is not enough: a source that blocks inside its
+        # generator would never yield another line for the loop to check.
+        self.source.follow = False
         self.stats.running = True
         deadline = time.time() + 2.0
         try:
