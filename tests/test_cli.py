@@ -101,7 +101,9 @@ def test_config_path_reports_locations(cli: Path, capsys: pytest.CaptureFixture[
     assert run("config", "path", "--json") == ExitCode.OK
     payload = json.loads(capsys.readouterr().out)
     assert payload["database"].endswith(".db")
-    assert "sentinelfw" in payload["database"]
+    # Everything must live inside the throwaway project, never in the repo.
+    for key in ("database", "rules state", "backups", "reports", "log file"):
+        assert str(cli) in payload[key], f"{key} escaped the project: {payload[key]}"
 
 
 def test_config_check_accepts_a_valid_file(cli: Path) -> None:
@@ -167,13 +169,9 @@ def test_non_interactive_mutation_without_yes_is_refused(
         cli: Path, monkeypatch: pytest.MonkeyPatch,
         capsys: pytest.CaptureFixture[str]) -> None:
     """Assuming consent in a pipeline is how machines get locked out."""
-
-    class NotATty:
-        def isatty(self) -> bool:
-            return False
-
-    monkeypatch.setattr("sys.stdin", NotATty())
-    monkeypatch.setattr("sys.stdout", NotATty())
+    # Patch the interactivity probe itself: replacing sys.stdout would break
+    # Rich's rendering rather than exercise the refusal path.
+    monkeypatch.setattr("cli.console._is_interactive", lambda: False)
     code = run("firewall", "block-ip", "203.0.113.7")
     assert code == ExitCode.ABORTED
     assert "Refusing to continue" in capsys.readouterr().out
@@ -196,7 +194,7 @@ def test_firewall_status_json_is_machine_readable(
     assert run("firewall", "status", "--json") == ExitCode.OK
     payload = json.loads(capsys.readouterr().out)
     assert payload["stored_rules"] == 1
-    assert payload["table"] == "sentinelfw"
+    assert payload["table"] == "inet sentinelfw"
 
 
 def test_syn_logging_dry_run_warns_about_noise(cli: Path,
@@ -211,6 +209,24 @@ def test_syn_logging_dry_run_warns_about_noise(cli: Path,
 def test_demo_run_populates_the_database(cli: Path) -> None:
     assert run("monitor", "demo", "--seconds", "3", "-y") == ExitCode.OK
     assert run("monitor", "status", "--json") == ExitCode.OK
+
+
+@pytest.mark.parametrize("argv,key", [
+    (["monitor", "status"], "total_events"),
+    (["firewall", "status"], "stored_rules"),
+    (["alerts", "list"], "count"),
+    (["db", "stats"], "total_events"),
+    (["dashboard", "--once"], "range"),
+])
+def test_json_output_is_a_single_valid_document(
+        cli: Path, capsys: pytest.CaptureFixture[str], argv: list[str],
+        key: str) -> None:
+    """Decoration after the JSON payload makes it unparseable for scripts."""
+    run("monitor", "demo", "--seconds", "2", "-y")
+    capsys.readouterr()
+    assert run(*argv, "--json") == ExitCode.OK
+    payload = json.loads(capsys.readouterr().out)
+    assert key in payload
 
 
 def test_demo_data_is_labelled_as_synthetic(cli: Path,
