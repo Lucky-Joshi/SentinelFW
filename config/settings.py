@@ -475,7 +475,11 @@ def load_config(
                                          else Path(os.environ[ENV_CONFIG_PATH]).expanduser())
         if create:
             log.info("No config found; creating %s", target)
-            save_config(config_from_mapping({}, config_path=target), path=target)
+            save_config(
+                config_from_mapping({}, config_path=target,
+                                   root_dir=target.parent),
+                path=target,
+            )
             chosen = target
         elif require:
             raise ConfigNotFoundError(
@@ -484,7 +488,8 @@ def load_config(
             )
         else:
             log.debug("No config file found; using built-in defaults")
-            return config_from_mapping({}, config_path=target)
+            return config_from_mapping({}, config_path=target,
+                                       root_dir=target.parent)
 
     try:
         raw_text = chosen.read_text(encoding="utf-8")
@@ -509,7 +514,10 @@ def load_config(
     if unknown:
         log.warning("Ignoring unknown config keys: %s", ", ".join(unknown))
 
-    cfg = config_from_mapping(data, config_path=chosen)
+    # Relative paths (rules.yaml, database/, logs/) resolve next to the config
+    # file, so pointing --config or SENTINELFW_CONFIG somewhere else relocates
+    # the whole project instead of scattering state back into the source tree.
+    cfg = config_from_mapping(data, config_path=chosen, root_dir=chosen.parent)
 
     warning = cfg.permissions_warning()
     if warning:
