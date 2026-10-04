@@ -24,10 +24,10 @@ from rich.text import Text
 
 from config import AppConfig
 from logsetup import get_logger
-from monitor.database import Database, SEVERITY_ORDER
+from monitor.database import Database
 from monitor.detector import DetectionEngine
 from monitor.explain import SEVERITY_COLORS, port_info
-from utils import human_duration, human_int, iso_from_epoch, mask_ip, period_start
+from utils import human_int, iso_from_epoch, mask_ip, period_start
 
 log = get_logger("dashboard")
 
