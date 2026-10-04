@@ -90,4 +90,4 @@ First release.
   plus journal reads where the user lacks `systemd-journal` access.
 - Tested on Kali Linux with Python 3.14, nftables 1.1.7 and SQLite 3.53.
 
-[1.0.0]: https://github.com/your-account/sentinelfw/releases/tag/v1.0.0
+[1.0.0]: https://github.com/Lucky-Joshi/SentinelFW/releases/tag/v1.0.0
