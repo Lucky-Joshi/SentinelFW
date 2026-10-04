@@ -9,9 +9,10 @@ before opening a change.
 SentinelFW runs from a clone with no install step:
 
 ```bash
-git clone <your-fork-url>
+git clone https://github.com/Lucky-Joshi/SentinelFW.git
 cd SentinelFW
-sudo apt install python3-rich python3-yaml nftables
+sudo apt update
+sudo apt install -y nftables python3-rich python3-yaml
 python3 -m pytest
 ```
 
