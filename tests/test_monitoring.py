@@ -315,7 +315,7 @@ def test_missing_file_source_is_reported(tmp_path: Path, config: AppConfig) -> N
 
 
 def test_demo_source_produces_parsable_lines(config: AppConfig) -> None:
-    source = DemoLogSource(log_prefix=config.log_prefix, speed=0.0)
+    source = DemoLogSource(log_prefix=config.log_prefix, speed=1000.0)
     parser = NFLogParser(log_prefix=config.log_prefix,
                          watch_ports=config.detection.watch_ports)
     events = list(parser.parse_lines(itertools.islice(source.stream(), 60)))
@@ -325,7 +325,7 @@ def test_demo_source_produces_parsable_lines(config: AppConfig) -> None:
 
 
 def test_collector_ingests_and_detects(config: AppConfig, db: Database) -> None:
-    source = DemoLogSource(log_prefix=config.log_prefix, speed=0.0)
+    source = DemoLogSource(log_prefix=config.log_prefix, speed=1000.0)
     collector = LogCollector(config, db, source, detection=True)
     collector.run_once()
     assert collector.stats.events_ingested > 0
@@ -334,7 +334,7 @@ def test_collector_ingests_and_detects(config: AppConfig, db: Database) -> None:
 
 
 def test_collector_can_skip_detection(config: AppConfig, db: Database) -> None:
-    source = DemoLogSource(log_prefix=config.log_prefix, speed=0.0)
+    source = DemoLogSource(log_prefix=config.log_prefix, speed=1000.0)
     collector = LogCollector(config, db, source, detection=False)
     collector.run_once()
     assert collector.stats.events_ingested > 0
@@ -343,7 +343,7 @@ def test_collector_can_skip_detection(config: AppConfig, db: Database) -> None:
 
 def test_collector_run_forever_stops_at_max_events(config: AppConfig,
                                                    db: Database) -> None:
-    source = DemoLogSource(log_prefix=config.log_prefix, speed=0.0)
+    source = DemoLogSource(log_prefix=config.log_prefix, speed=1000.0)
     collector = LogCollector(config, db, source, detection=False)
     stats = collector.run_forever(max_events=15, max_seconds=30)
     assert stats.events_ingested == 15
