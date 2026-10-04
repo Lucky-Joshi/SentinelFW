@@ -21,6 +21,25 @@ from firewall.rules import RuleStore  # noqa: E402
 from monitor.database import Database  # noqa: E402
 
 
+@pytest.fixture(autouse=True)
+def _isolate_from_the_real_project(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
+    """Make it impossible for any test to write into the source tree.
+
+    Autouse, because several CLI tests construct the application without
+    asking for a fixture and would otherwise fall back to the repository's own
+    ``config.yaml``, creating ``logs/``, ``database/`` and ``rules.yaml`` next to
+    the source during a test run. Pointing the environment at a throwaway path
+    means forgetting a fixture leaks into ``tmp_path`` instead of into the
+    operator's project.
+    """
+    root = tmp_path / "autoisolate"
+    root.mkdir(parents=True, exist_ok=True)
+    monkeypatch.setenv("SENTINELFW_CONFIG", str(root / "config.yaml"))
+    monkeypatch.chdir(root)
+    yield
+
+
 @pytest.fixture()
 def project_dir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     """An isolated SentinelFW project root."""
