@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sentinelfw"
+version = "1.0.0"
+description = "Local nftables firewall manager and security monitor for Kali Linux"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+keywords = ["nftables", "firewall", "security", "monitoring", "kali-linux"]
+classifiers = [
+    "Environment :: Console",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Topic :: Security",
+    "Topic :: System :: Networking :: Firewalls",
+]
+dependencies = [
+    "rich>=13.0",
+    "PyYAML>=6.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "pytest-cov>=5.0"]
+
+[project.scripts]
+sentinelfw = "cli.interface:main"
+
+[tool.setuptools]
+packages = ["cli", "config", "dashboard", "firewall", "monitor"]
+py-modules = ["exceptions", "logsetup", "utils", "version"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = ["error::DeprecationWarning:sentinelfw.*"]

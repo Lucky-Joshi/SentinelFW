@@ -1,0 +1,9 @@
+# Development and test dependencies.
+#
+# The runtime itself needs only requirements.txt. This file exists so the test
+# suite can be reproduced exactly.
+
+-r requirements.txt
+
+pytest>=8.0           # test runner
+pytest-cov>=5.0       # optional: coverage reporting

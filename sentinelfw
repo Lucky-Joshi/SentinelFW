@@ -1,0 +1,42 @@
+#!/usr/bin/env python3
+"""Local launcher so SentinelFW runs straight from this folder.
+
+    ./sentinelfw doctor
+    ./sentinelfw --help
+
+No installation and no virtualenv required: dependencies come from the system
+interpreter. Use ``sudo ./sentinelfw firewall apply`` when changing nftables.
+"""
+
+from __future__ import annotations
+
+import os
+import sys
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+if str(HERE) not in sys.path:
+    sys.path.insert(0, str(HERE))
+
+try:
+    from cli.interface import main
+except ImportError as exc:  # pragma: no cover - first-run help
+    missing = getattr(exc, "name", "") or "a dependency"
+    sys.stderr.write(
+        f"SentinelFW cannot start: {missing} is not installed.\n"
+        "Install the requirements and try again:\n"
+        "    sudo apt install python3-rich python3-yaml nftables\n"
+        "or: pip install -r requirements.txt\n"
+    )
+    raise SystemExit(1) from exc
+
+if __name__ == "__main__":
+    # Refuse to run as root unless the user actually asked for it: applying
+    # firewall rules does not need root, and an accidental root shell is a
+    # bad habit to encourage.
+    if os.geteuid() == 0 and "--help" not in sys.argv and "-h" not in sys.argv:
+        sys.stderr.write(
+            "note: running as root. Only 'firewall apply', 'firewall validate', "
+            "'firewall restore' and journal reads need it.\n"
+        )
+    raise SystemExit(main())

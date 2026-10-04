@@ -1,0 +1,16 @@
+# SentinelFW runtime dependencies.
+#
+# Debian/Ubuntu/Kali equivalents are listed as comments; the project also runs
+# straight from this folder with the system interpreter and no virtualenv.
+#
+#     sudo apt install python3-rich python3-yaml nftables
+#
+# Standard library modules used by the project (sqlite3, argparse, socket,
+# subprocess, ipaddress, unittest) need no installation on Python 3.10+.
+
+rich>=13.0            # terminal rendering: tables, panels, live dashboard
+PyYAML>=6.0           # configuration and rule file parsing (safe_load only)
+
+# System package, not a Python dependency:
+#   nftables            provides the `nft` binary; required only for changes
+#                       that touch the live kernel ruleset.
