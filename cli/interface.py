@@ -96,25 +96,30 @@ _GLOBAL_FLAGS: tuple[tuple[str, dict[str, Any]], ...] = (
 
 
 def _mirror_global_flags(parser: argparse.ArgumentParser) -> None:
-    """Recursively add :data:`_GLOBAL_FLAGS` to every leaf subcommand.
+    """Recursively add :data:`_GLOBAL_FLAGS` to every subcommand.
 
-    ``argparse.SUPPRESS`` defaults are essential: without them the subparser
-    would overwrite whatever the main parser already parsed with its own
-    default, silently discarding an earlier ``--json``.
+    Both intermediate groups (``firewall``) and leaves get the flags, so
+    ``firewall --dry-run block-ip 1.2.3.4`` and
+    ``firewall block-ip 1.2.3.4 --dry-run`` both work, as does the leading
+    ``--dry-run firewall ...`` form. ``argparse.SUPPRESS`` defaults are
+    essential: without them the subparser would overwrite whatever the parent
+    already parsed with its own default, silently discarding an earlier flag.
     """
-    for action in parser._actions:  # noqa: SLF001 - argparse exposes no public API
-        if isinstance(action, argparse._SubParsersAction):
-            for child in action.choices.values():
-                _mirror_global_flags(child)
-            return
-
     existing = parser._option_string_actions  # noqa: SLF001
-    group = parser.add_argument_group("global options (also accepted before the command)")
+    group = None
     for flag, kwargs in _GLOBAL_FLAGS:
         names = (flag,) if flag in ("-y", "-v") else (flag, flag.lstrip("-"))
         if any(name in existing for name in names):
             continue
+        if group is None:
+            group = parser.add_argument_group(
+                "global options (also accepted before the command)")
         group.add_argument(flag, **{**kwargs, "help": kwargs.get("help", "")})
+
+    for action in parser._actions:  # noqa: SLF001
+        if isinstance(action, argparse._SubParsersAction):
+            for child in action.choices.values():
+                _mirror_global_flags(child)
 
 
 def build_parser() -> argparse.ArgumentParser:
