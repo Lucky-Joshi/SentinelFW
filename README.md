@@ -61,8 +61,18 @@ SentinelFW inverts that:
 | Python packages | `rich`, `PyYAML` |
 | System package | `nftables` — only needed to change the live ruleset |
 
+On Kali, Debian and Ubuntu, everything comes from apt:
+
 ```bash
-sudo apt update && sudo apt install -y nftables python3-rich python3-yaml
+sudo apt update
+sudo apt install -y nftables python3-rich python3-yaml
+```
+
+Prefer pip, or on a distro that does not package those two libraries?
+
+```bash
+sudo apt install -y nftables
+pip install rich PyYAML     # add --break-system-packages if pip refuses (PEP 668)
 ```
 
 ## Install
@@ -82,22 +92,39 @@ cd SentinelFW
 
 **Optional: install the `sentinelfw` command system-wide.**
 
+Kali marks its Python as externally managed, so a plain `pip install .` is
+refused. Use `pipx`, which gives the command its own environment:
+
 ```bash
-pip install --user .
+sudo apt install -y pipx     # if you do not have it already
+pipx install .
 sentinelfw doctor
 ```
+
+Or manage it in a virtualenv yourself:
+
+```bash
+python3 -m venv ~/.venvs/sentinelfw
+~/.venvs/sentinelfw/bin/pip install .
+~/.venvs/sentinelfw/bin/sentinelfw doctor
+```
+
+Either way the dependencies come with it; `requirements.txt` is there for
+environments you build yourself.
 
 ## First run
 
 ```bash
 # 1. See whether this machine is ready.
+#    Exit code 6 means "some checks need attention" - read the list it prints.
 ./sentinelfw doctor
 
 # 2. Create the configuration file (mode 0600).
 ./sentinelfw config init
 
 # 3. Learn the interface with synthetic traffic. No root, no real attacker,
-#    and it is labelled as fabricated everywhere it appears.
+#    and it is labelled as fabricated everywhere it appears. It asks before
+#    writing to your database; add -y to skip the question in a script.
 ./sentinelfw monitor demo --seconds 30
 
 # 4. Watch the result.
@@ -117,6 +144,37 @@ Then, when you are ready to change the real firewall:
 
 # Install it. Takes a backup, asks for confirmation, applies atomically.
 sudo ./sentinelfw firewall apply
+```
+
+### Letting the monitor read logs without root
+
+`monitor start` uses the systemd journal, which is normally root-only. To read
+it as your own user, join the journal group, then start a new login session (or
+reboot) so it takes effect:
+
+```bash
+sudo usermod -aG systemd-journal "$USER"
+```
+
+`./sentinelfw doctor` reports journal access explicitly. If you would rather not
+change group membership, run the monitor with `sudo`, or point
+`monitoring.source` at log files instead.
+
+### Where your data lives
+
+`config path` prints every location in use. Running from a clone, state goes into
+that folder. An **installed** command run from a new directory creates its
+project there, so run `config init` from wherever you want it to live:
+
+```bash
+mkdir -p ~/work/lab && cd ~/work/lab
+sentinelfw config init
+```
+
+To keep it somewhere specific regardless of where you run from:
+
+```bash
+SENTINELFW_CONFIG=~/work/lab/config.yaml sentinelfw monitor status
 ```
 
 ## How SentinelFW stays safe
