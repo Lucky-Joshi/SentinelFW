@@ -27,7 +27,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Sequence
 
-from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
@@ -43,7 +42,7 @@ from cli.console import (
     success,
     warn,
 )
-from config import AppConfig, load_config, save_config, write_template
+from config import AppConfig, load_config, write_template
 from dashboard.terminal import Dashboard
 from exceptions import (
     ExitCode,
@@ -56,10 +55,10 @@ from logsetup import get_logger, setup_logging
 from monitor.database import Database, FirewallEvent
 from monitor.detector import DetectionEngine
 from monitor.explain import explain_attack, explain_event, explain_port
-from monitor.log_parser import FileLogSource, build_source
+from monitor.log_parser import FileLogSource
 from monitor.monitor import LogCollector, make_collector
 from monitor.reports import ReportGenerator
-from utils import human_int, mask_ip, now_iso, period_start, truncate
+from utils import human_int, mask_ip, period_start, truncate
 from version import APP_NAME, SCHEMA_VERSION, __version__
 
 log = get_logger("cli")
