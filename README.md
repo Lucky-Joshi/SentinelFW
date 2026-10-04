@@ -10,6 +10,8 @@ It is built to be read before it is trusted: every firewall change is previewed,
 backed up and confirmed, and the tool refuses to touch any nftables table other
 than the one it owns.
 
+Repository: <https://github.com/Lucky-Joshi/SentinelFW.git>
+
 ---
 
 ## Table of contents
@@ -65,10 +67,14 @@ sudo apt update && sudo apt install -y nftables python3-rich python3-yaml
 
 ## Install
 
+```bash
+git clone https://github.com/Lucky-Joshi/SentinelFW.git
+cd SentinelFW
+```
+
 **Run it straight from this folder.** Nothing to install, no virtualenv:
 
 ```bash
-cd SentinelFW
 ./sentinelfw doctor
 ```
 
@@ -154,7 +160,7 @@ or `;`.
 ```
 firewall list                 show configured rules (--live to diff against the kernel)
 firewall status               backend availability and rule sync
-firewall block-ip ADDRESS     block an IP or network       [-r reason] [--apply]
+firewall block-ip ADDRESS     block an IP or network       [-r reason] [--apply] [--force]
 firewall allow-ip ADDRESS     allow an IP or network
 firewall block-port PORT      block a TCP/UDP port         [--protocol tcp|udp|any]
 firewall allow-port PORT      allow a TCP/UDP port
@@ -173,6 +179,11 @@ firewall enable-logging       log every incoming SYN (noisy)  [--off]
 
 Rules are ordered so that allows are evaluated before drops, and SentinelFW
 tells you when a rule you added makes another one unreachable.
+
+Recording an identical or contradicting rule is refused. Note that `--yes` only
+suppresses the prompt — it does **not** bypass that check, so an unattended run
+cannot quietly accumulate duplicate rules. Overriding it is a separate, explicit
+decision: `--force`.
 
 Global flags work before or after the command, which is what people actually
 type:
@@ -314,7 +325,8 @@ SentinelFW/
 ├── logsetup.py             rotating logs, including every nft command
 ├── utils.py                time, formatting and small helpers
 ├── version.py
-└── tests/                  158 tests; none of them touch the kernel
+├── docs/SAFETY.md          the invariants, and the tests that enforce them
+└── tests/                  160 tests; none of them touch the kernel
 ```
 
 ## Exit codes
@@ -336,7 +348,7 @@ changed.
 ## Testing
 
 ```bash
-python3 -m pytest              # 158 tests, about 50 seconds
+python3 -m pytest              # 160 tests, about 50 seconds
 python3 -m pytest -v           # per-test output
 python3 -m pytest tests/test_cli.py
 ```
