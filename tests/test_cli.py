@@ -17,10 +17,16 @@ from exceptions import ExitCode
 
 @pytest.fixture()
 def cli(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
-    """Point the CLI at a throwaway project directory."""
+    """Point the CLI at a throwaway project directory.
+
+    Both the env var and the working directory are redirected: the config
+    search list also considers ``./config.yaml`` and the source tree's, so
+    leaving the cwd in the repo would silently pick up the real config.
+    """
     project = tmp_path / "project"
     project.mkdir()
     monkeypatch.setenv("SENTINELFW_CONFIG", str(project / "config.yaml"))
+    monkeypatch.chdir(project)
     return project
 
 
@@ -41,10 +47,11 @@ def run(*argv: str) -> int:
 ])
 def test_global_flags_work_on_either_side_of_the_command(argv: list[str]) -> None:
     args = build_parser().parse_args(argv)
-    assert args.group == argv[-1] if False else args.group in ("firewall", "monitor")
-    assert getattr(args, "json", False) is True or "--json" not in argv
-    assert getattr(args, "yes", False) is True or "-y" not in argv and "--yes" not in argv
-    assert getattr(args, "dry_run", False) is True or "--dry-run" not in argv
+    assert args.group in ("firewall", "monitor")
+    for flag, dest in (("--json", "json"), ("-y", "yes"), ("--yes", "yes"),
+                       ("--dry-run", "dry_run")):
+        if flag in argv:
+            assert getattr(args, dest) is True, f"{flag} lost in {argv}"
 
 
 def test_short_and_long_yes_are_equivalent() -> None:
@@ -338,8 +345,8 @@ def test_explain_event_last(cli: Path) -> None:
     assert run("explain", "event", "--last", "1") == ExitCode.OK
 
 
-def test_explain_event_without_target_is_a_usage_error(cli: Path) -> None:
-    assert run("explain", "event") == ExitCode.USAGE
+def test_explain_event_without_target_is_rejected(cli: Path) -> None:
+    assert run("explain", "event") == ExitCode.VALIDATION
 
 
 # ---------------------------------------------------------------------------
