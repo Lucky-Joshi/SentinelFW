@@ -7,11 +7,13 @@ and assert that anything needing root fails cleanly instead of half-applying.
 from __future__ import annotations
 
 import json
+import time
 from pathlib import Path
 
 import pytest
 
 from cli.interface import build_parser, main
+from config.settings import load_config, save_config
 from exceptions import ExitCode
 
 
@@ -391,3 +393,23 @@ def test_db_export_to_file_is_private(cli: Path) -> None:
     assert run("db", "export", "--output", str(target)) == ExitCode.OK
     assert target.is_file()
     assert target.stat().st_mode & 0o077 == 0
+
+def test_monitor_poll_terminates_instead_of_following(
+        cli: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """``poll`` promises one pass then exit, so the source must not follow."""
+    monkeypatch.setenv("SENTINELFW_CONFIG", str(cli / "config.yaml"))
+    run("config", "init", "-y")
+
+    # A log file that exists but has nothing left to give: the exact case that
+    # used to block forever because the source kept waiting for new lines.
+    settled = cli / "monitor.log"
+    settled.write_text("")
+
+    cfg = load_config(cli / "config.yaml")
+    cfg.monitoring.source = "file"
+    cfg.monitoring.log_files = [str(settled)]
+    save_config(cfg, cli / "config.yaml")
+
+    start = time.monotonic()
+    assert run("monitor", "poll") == ExitCode.OK
+    assert time.monotonic() - start < 20, "monitor poll followed the log forever"
