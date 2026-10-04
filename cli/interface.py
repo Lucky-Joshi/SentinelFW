@@ -436,6 +436,26 @@ class SentinelCLI:
     # ------------------------------------------------------------------
     def run(self) -> int:
         """Dispatch to the requested subcommand."""
+        try:
+            return self._run()
+        except SentinelFWError as exc:
+            # Config loading happens inside _run (for logging setup), so this
+            # outer guard is what turns a bad config.yaml into a clean message
+            # instead of a traceback.
+            self.console.print(
+                Panel(Text(exc.message), title="Error", title_align="left",
+                      border_style="red"))
+            if exc.hint:
+                self.console.print(f"  [dim]hint:[/dim] {exc.hint}")
+            log.debug("Handled error: %s", exc)
+            return exc.exit_code
+        except KeyboardInterrupt:
+            self.console.print("\n[yellow]Interrupted.[/yellow]")
+            return ExitCode.ABORTED
+        except BrokenPipeError:  # e.g. `sentinelfw dashboard | head`
+            return ExitCode.OK
+
+    def _run(self) -> int:
         group = getattr(self.args, "group", None)
         command = getattr(self.args, "command", None)
 
@@ -1266,6 +1286,11 @@ class SentinelCLI:
             ("Unique sources", p["unique_sources"]),
             ("Alerts", p["alert_total"]),
         ], title="Monitor status"))
+
+        # Machine-readable output must stay parseable: everything below is
+        # decoration and would corrupt the JSON document.
+        if self.args.json:
+            return ExitCode.OK
 
         if payload["total_events"] == 0:
             self.console.print(
