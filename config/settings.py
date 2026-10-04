@@ -460,19 +460,32 @@ def load_config(
     Parameters
     ----------
     path:
-        Explicit file to read. Skips the search list.
+        Explicit file to read. Only this file is considered: a path the
+        operator named explicitly is never silently replaced by another one.
     create:
         Write a commented default config when none exists.
     require:
         Raise instead of falling back to defaults when nothing is found.
+
+    Notes
+    -----
+    ``SENTINELFW_CONFIG`` is honoured the same way as ``path``. Without either,
+    the search list is ``./config.yaml`` then the directory containing this
+    module's parent (the source checkout).
     """
-    search = [Path(path).expanduser()] if path else config_search_paths()
+    if path is not None:
+        search = [Path(path).expanduser()]
+    elif os.environ.get(ENV_CONFIG_PATH):
+        # An explicit request must not fall back to ./config.yaml or the source
+        # tree: that would write rules and events into the wrong project.
+        search = [Path(os.environ[ENV_CONFIG_PATH]).expanduser()]
+    else:
+        search = config_search_paths()
     chosen = next((p for p in search if p.is_file()), None)
 
     if chosen is None:
-        target = search[0] if path else (Path.cwd() / CONFIG_FILENAME
-                                         if not os.environ.get(ENV_CONFIG_PATH)
-                                         else Path(os.environ[ENV_CONFIG_PATH]).expanduser())
+        target = search[0] if (path or os.environ.get(ENV_CONFIG_PATH)) else (
+            Path.cwd() / CONFIG_FILENAME)
         if create:
             log.info("No config found; creating %s", target)
             save_config(
