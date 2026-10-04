@@ -1784,7 +1784,9 @@ class SentinelCLI:
         return handler()
 
     def _cfg_init(self) -> int:
-        target = Path(self.args.config) if self.args.config else None
+        # Honour --config, then SENTINELFW_CONFIG, then the search list; the
+        # resolved cfg knows which file would actually be written.
+        target = Path(self.args.config) if self.args.config else self.cfg.config_path
         show_change_preview(
             self.console,
             action="Create configuration file",
