@@ -177,23 +177,31 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("-r", "--reason", default="", help="why (stored as the comment)")
     p.add_argument("--apply", action="store_true",
                    help="also install the ruleset now (asks to confirm)")
+    p.add_argument("--force", action="store_true",
+                   help="record even if an identical or contradicting rule exists")
 
     p = fw_sub.add_parser("allow-ip", help="allow an IP address or network")
     p.add_argument("address")
     p.add_argument("-r", "--reason", default="")
     p.add_argument("--apply", action="store_true")
+    p.add_argument("--force", action="store_true",
+                   help="record even if an identical or contradicting rule exists")
 
     p = fw_sub.add_parser("block-port", help="block a TCP/UDP port")
     p.add_argument("port", type=str)
     p.add_argument("-p", "--protocol", default="any", choices=["tcp", "udp", "any", "icmp"])
     p.add_argument("-r", "--reason", default="")
     p.add_argument("--apply", action="store_true")
+    p.add_argument("--force", action="store_true",
+                   help="record even if an identical or contradicting rule exists")
 
     p = fw_sub.add_parser("allow-port", help="allow a TCP/UDP port")
     p.add_argument("port", type=str)
     p.add_argument("-p", "--protocol", default="any", choices=["tcp", "udp", "any", "icmp"])
     p.add_argument("-r", "--reason", default="")
     p.add_argument("--apply", action="store_true")
+    p.add_argument("--force", action="store_true",
+                   help="record even if an identical or contradicting rule exists")
 
     p = fw_sub.add_parser("remove", help="delete a rule by id")
     p.add_argument("id", type=int)
@@ -755,8 +763,11 @@ class SentinelCLI:
                        assume_yes=self.args.yes):
             raise UserAbortError("Declined by operator.")
 
-        created = self.store.add(rule, allow_duplicate=self.args.yes,
-                                 allow_contradiction=self.args.yes)
+        # --yes only means "do not prompt me". It must not also disable the
+        # duplicate and contradiction checks, or an unattended run would
+        # quietly accumulate identical rules.
+        created = self.store.add(rule, allow_duplicate=self.args.force,
+                                 allow_contradiction=self.args.force)
         success(self.console, f"Rule #{created.id} saved to {self.cfg.state_file}")
         self.console.print(
             f"[dim]Not active in the kernel yet. Install it with:[/dim]\n"
