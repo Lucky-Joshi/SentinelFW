@@ -413,3 +413,12 @@ def test_monitor_poll_terminates_instead_of_following(
     start = time.monotonic()
     assert run("monitor", "poll") == ExitCode.OK
     assert time.monotonic() - start < 20, "monitor poll followed the log forever"
+
+
+def test_yes_does_not_bypass_the_duplicate_check(cli: Path) -> None:
+    """--yes means "do not prompt", not "skip the safety checks"."""
+    assert run("firewall", "block-ip", "198.51.100.9", "-y") == ExitCode.OK
+    # An unattended run must not quietly pile up identical rules.
+    assert run("firewall", "block-ip", "198.51.100.9", "-y") == ExitCode.VALIDATION
+    # Overriding that is a separate, explicit decision.
+    assert run("firewall", "block-ip", "198.51.100.9", "-y", "--force") == ExitCode.OK
