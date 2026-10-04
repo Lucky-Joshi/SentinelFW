@@ -1,0 +1,109 @@
+# ---------------------------------------------------------------------------
+# SentinelFW — ignore rules
+# This project is used locally, but it is also a valid Git repository.
+# Secrets, live state and generated artifacts must never be committed.
+# ---------------------------------------------------------------------------
+
+# --- Runtime state (never commit: machine specific, may contain host data) ---
+config.yaml
+config.yaml.local
+rules.yaml
+rules.yaml.local
+*.local.yaml
+
+# --- Databases -------------------------------------------------------------
+database/*.db
+database/*.db-wal
+database/*.db-shm
+database/*.sqlite
+database/*.sqlite3
+*.db
+*.sqlite
+*.sqlite3
+
+# --- Logs ------------------------------------------------------------------
+logs/*.log
+logs/*.log.*
+*.log
+
+# --- Backups (contain a snapshot of the live kernel firewall state) --------
+backups/*
+!backups/.gitkeep
+
+# --- Generated reports -----------------------------------------------------
+reports/*
+!reports/.gitkeep
+
+# --- Python ----------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# --- Virtual environments --------------------------------------------------
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.python-version
+
+# --- Caches ----------------------------------------------------------------
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.dmypy.json
+dmypy.json
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.cache
+.tox/
+.nox/
+
+# --- Editors / IDE ---------------------------------------------------------
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.settings/
+
+# --- OS --------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# --- Tooling ---------------------------------------------------------------
+.mypy.ini
+.travis.yml
+*.bak
+*.orig
+*.swp
+
+# --- Secrets (paranoid belt-and-braces) -----------------------------------
+*.key
+*.pem
+id_rsa*
+.env
+.env.*
+secrets/

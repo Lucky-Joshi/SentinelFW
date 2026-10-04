@@ -1,0 +1,22 @@
+# Normalise line endings for text files, keep binaries untouched.
+* text=auto eol=lf
+
+*.py    text diff=python
+*.md    text
+*.yml   text
+*.yaml  text
+*.txt   text
+*.sh    text eol=lf
+
+# The launcher is a POSIX shell script and must always stay LF.
+sentinelfw text eol=lf
+
+*.png   binary
+*.jpg   binary
+*.gif   binary
+*.ico   binary
+*.db    binary
+*.sqlite binary
+
+# Keep generated/merged files out of language stats and diffs.
+docs/*_build/   linguist-generated=true
