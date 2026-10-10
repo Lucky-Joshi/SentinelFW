@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 760" font-family="DejaVu Sans">
+<defs>
+<marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L8,3 L0,6 z" fill="#1f6feb"/></marker>
+<marker id="arrowd" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L8,3 L0,6 z" fill="#238636"/></marker>
+</defs>
+<rect x="0" y="0" width="1180" height="760" fill="white"/>
+<rect x="20.0" y="40" width="150" height="46" rx="7" fill="#dbeafe" stroke="#1f6feb" stroke-width="1.4"/>
+<text x="95.0" y="60" text-anchor="middle" font-size="14" font-weight="bold" fill="#0b2a52">Operator</text>
+<text x="95.0" y="77" text-anchor="middle" font-size="10.5" fill="#57606a">CLI</text>
+<line x1="95.0" y1="86" x2="95.0" y2="730" stroke="#adb5bd" stroke-width="1.2" stroke-dasharray="5 5"/>
+<rect x="218.0" y="40" width="150" height="46" rx="7" fill="#dbeafe" stroke="#1f6feb" stroke-width="1.4"/>
+<text x="293.0" y="60" text-anchor="middle" font-size="14" font-weight="bold" fill="#0b2a52">LogCollector</text>
+<text x="293.0" y="77" text-anchor="middle" font-size="10.5" fill="#57606a">monitor.py</text>
+<line x1="293.0" y1="86" x2="293.0" y2="730" stroke="#adb5bd" stroke-width="1.2" stroke-dasharray="5 5"/>
+<rect x="416.0" y="40" width="150" height="46" rx="7" fill="#dbeafe" stroke="#1f6feb" stroke-width="1.4"/>
+<text x="491.0" y="60" text-anchor="middle" font-size="14" font-weight="bold" fill="#0b2a52">LogSource</text>
+<text x="491.0" y="77" text-anchor="middle" font-size="10.5" fill="#57606a">journal / file</text>
+<line x1="491.0" y1="86" x2="491.0" y2="730" stroke="#adb5bd" stroke-width="1.2" stroke-dasharray="5 5"/>
+<rect x="614.0" y="40" width="150" height="46" rx="7" fill="#dbeafe" stroke="#1f6feb" stroke-width="1.4"/>
+<text x="689.0" y="60" text-anchor="middle" font-size="14" font-weight="bold" fill="#0b2a52">NFLogParser</text>
+<text x="689.0" y="77" text-anchor="middle" font-size="10.5" fill="#57606a">log_parser.py</text>
+<line x1="689.0" y1="86" x2="689.0" y2="730" stroke="#adb5bd" stroke-width="1.2" stroke-dasharray="5 5"/>
+<rect x="812.0" y="40" width="150" height="46" rx="7" fill="#dbeafe" stroke="#1f6feb" stroke-width="1.4"/>
+<text x="887.0" y="60" text-anchor="middle" font-size="14" font-weight="bold" fill="#0b2a52">Database</text>
+<text x="887.0" y="77" text-anchor="middle" font-size="10.5" fill="#57606a">SQLite</text>
+<line x1="887.0" y1="86" x2="887.0" y2="730" stroke="#adb5bd" stroke-width="1.2" stroke-dasharray="5 5"/>
+<rect x="1010.0" y="40" width="150" height="46" rx="7" fill="#dbeafe" stroke="#1f6feb" stroke-width="1.4"/>
+<text x="1085.0" y="60" text-anchor="middle" font-size="14" font-weight="bold" fill="#0b2a52">DetectionEngine</text>
+<text x="1085.0" y="77" text-anchor="middle" font-size="10.5" fill="#57606a">detector.py</text>
+<line x1="1085.0" y1="86" x2="1085.0" y2="730" stroke="#adb5bd" stroke-width="1.2" stroke-dasharray="5 5"/>
+<line x1="95.0" y1="144" x2="293.0" y2="144" stroke="#1f6feb" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="194.0" y="138" text-anchor="middle" font-size="11.5" fill="#1b1f24">monitor start</text>
+<line x1="293.0" y1="196" x2="491.0" y2="196" stroke="#1f6feb" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="392.0" y="190" text-anchor="middle" font-size="11.5" fill="#1b1f24">open / follow source</text>
+<line x1="491.0" y1="248" x2="293.0" y2="248" stroke="#238636" stroke-width="1.5" marker-end="url(#arrowd)" stroke-dasharray="6 4"/>
+<text x="392.0" y="242" text-anchor="middle" font-size="11.5" fill="#1b1f24">raw log line</text>
+<line x1="293.0" y1="300" x2="689.0" y2="300" stroke="#1f6feb" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="491.0" y="294" text-anchor="middle" font-size="11.5" fill="#1b1f24">parse_line(line)</text>
+<line x1="689.0" y1="352" x2="293.0" y2="352" stroke="#238636" stroke-width="1.5" marker-end="url(#arrowd)" stroke-dasharray="6 4"/>
+<text x="491.0" y="346" text-anchor="middle" font-size="11.5" fill="#1b1f24">FirewallEvent</text>
+<line x1="293.0" y1="404" x2="887.0" y2="404" stroke="#1f6feb" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="590.0" y="398" text-anchor="middle" font-size="11.5" fill="#1b1f24">bulk INSERT (batch)</text>
+<line x1="293.0" y1="456" x2="1085.0" y2="456" stroke="#1f6feb" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="689.0" y="450" text-anchor="middle" font-size="11.5" fill="#1b1f24">run(window)</text>
+<line x1="1085.0" y1="508" x2="887.0" y2="508" stroke="#1f6feb" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="986.0" y="502" text-anchor="middle" font-size="11.5" fill="#1b1f24">SQL aggregate over events</text>
+<line x1="887.0" y1="560" x2="1085.0" y2="560" stroke="#238636" stroke-width="1.5" marker-end="url(#arrowd)" stroke-dasharray="6 4"/>
+<text x="986.0" y="554" text-anchor="middle" font-size="11.5" fill="#1b1f24">counts by source / port</text>
+<line x1="1085.0" y1="612" x2="887.0" y2="612" stroke="#1f6feb" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="986.0" y="606" text-anchor="middle" font-size="11.5" fill="#1b1f24">record_alert(fingerprint)</text>
+<line x1="1085.0" y1="664" x2="293.0" y2="664" stroke="#238636" stroke-width="1.5" marker-end="url(#arrowd)" stroke-dasharray="6 4"/>
+<text x="689.0" y="658" text-anchor="middle" font-size="11.5" fill="#1b1f24">DetectionResult</text>
+<line x1="293.0" y1="716" x2="95.0" y2="716" stroke="#238636" stroke-width="1.5" marker-end="url(#arrowd)" stroke-dasharray="6 4"/>
+<text x="194.0" y="710" text-anchor="middle" font-size="11.5" fill="#1b1f24">alerts + recommendations</text>
+</svg>
