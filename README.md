@@ -29,6 +29,7 @@ Repository: <https://github.com/Lucky-Joshi/SentinelFW.git>
 - [Project layout](#project-layout)
 - [Exit codes](#exit-codes)
 - [Testing](#testing)
+- [Documentation](#documentation)
 - [Limitations](#limitations)
 - [License](#license)
 
@@ -442,6 +443,32 @@ Being straight with you about what this is not:
 - **Demo data is fabricated.** `monitor demo` writes to the same database as
   real events. It is labelled everywhere, but clear it with
   `monitor reset` when you are done.
+
+## Documentation
+
+The complete project documentation lives in [`docs/`](docs/).
+
+| Document | Description |
+|---|---|
+| [Final Project Report (PDF)](docs/10_Final_Project_Report.pdf) | Full report: architecture, design, test results, performance, security analysis, diagrams and screenshots |
+| [Final Project Report (Markdown)](docs/Final_Project_Report.md) | Source of the PDF report |
+| [01 — Project Proposal](docs/01_Project_Proposal.md) | Motivation, objectives, scope, deliverables |
+| [02 — System Architecture](docs/02_System_Architecture.md) | Layered architecture and data flows |
+| [03 — Design Document](docs/03_Design_Document.md) | Domain model, workflows, interfaces |
+| [04 — Test Plan](docs/04_Test_Plan.md) | Strategy, levels, environment, criteria |
+| [05 — Test Report](docs/05_Test_Report.md) | 160/160 passing, 72% coverage, performance |
+| [06 — User Manual](docs/06_User_Manual.md) | Installing and using the CLI |
+| [07 — Admin Guide](docs/07_Admin_Guide.md) | Configuration, permissions, retention, recovery |
+| [08 — Security Analysis](docs/08_Security_Analysis.md) | Threat model, controls, residual risk |
+| [09 — Limitations and Future Work](docs/09_Limitations_and_Future_Work.md) | Known limits and roadmap |
+| [SAFETY.md](docs/SAFETY.md) | The safety invariants and their tests |
+
+Diagrams are generated as SVG in [`docs/diagrams/`](docs/diagrams/) and terminal
+screenshots in [`docs/screenshots/`](docs/screenshots/). Rebuild the PDF with:
+
+```bash
+python3 docs/build_report.py
+```
 
 ## License
 
